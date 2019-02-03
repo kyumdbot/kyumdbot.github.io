@@ -1,10 +1,12 @@
 //
-// app.js
+// BLE Music Player - app.js
 //
+
+var bluetoothDevice;
 
 function onScanButtonClick() {
     let options = {filters: []};
-    options.filters.push({name: 'RLHome_MP3_Player'});
+    options.filters.push({namePrefix: 'RLHome_MP3_Player'});
 
     bluetoothDevice = null;
     console.log('Requesting Bluetooth Device...');

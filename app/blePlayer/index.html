@@ -7,10 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     
     <link rel="stylesheet" type="text/css" href="css/main.css" />
-
+    <link rel="stylesheet" type="text/css" href="css/elements.css" />
+    
     <meta name="apple-mobile-web-app-title" content="BLE Music Player" />
 
     <!--
@@ -27,7 +27,7 @@
     <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body>
-    <button id="scanButton" class="normalButton" onclick="onButtonClick()">Scan BLE Devices</button>
+    <button id="scanButton" class="normalButton" onclick="onScanButtonClick()">Scan BLE Devices</button>
     <button id="disconnectButton" class="normalButton" onclick="onDisconnectButtonClick()">Disconnect</button>
     <button id="reconnectButton" class="normalButton" onclick="onReconnectButtonClick()">Reconnect</button>
 </body>
