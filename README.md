@@ -1,6 +1,8 @@
 # README
 
-[BLE Music Player](https://kyumdbot.github.io/app/blePlayer)
+- [BLE RGB Light](https://kyumdbot.github.io/app/bleLight)
 
-[BLE WiFi QR Code](https://kyumdbot.github.io/app/bleWiFiQR)
+- [BLE Music Player](https://kyumdbot.github.io/app/blePlayer)
+
+- [BLE WiFi QR Code](https://kyumdbot.github.io/app/bleWiFiQR)
 
