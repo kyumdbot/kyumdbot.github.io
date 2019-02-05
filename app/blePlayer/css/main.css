@@ -1,4 +1,8 @@
-/* 
- * main.css 
- */
 
+ #bgDiv {
+    width: 330px;
+}
+
+@media (orientation: portrait) {
+    #bgDiv { margin-left:auto; margin-right:auto;}
+}
