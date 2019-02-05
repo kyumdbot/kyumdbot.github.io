@@ -11,12 +11,10 @@
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="css/elements.css" />
     
-    <meta name="apple-mobile-web-app-title" content="BLE Music Player" />
-
     <!--
+    <meta name="apple-mobile-web-app-title" content="BLE Music Player" />    
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    -->
 
     <link href="images/apple-touch-icon.png" rel="apple-touch-icon" />
     <link href="images/apple-touch-icon-120x120.png" rel="apple-touch-icon" sizes="120x120" />
@@ -25,11 +23,39 @@
     <link href="images/apple-touch-icon-167x167.png" rel="apple-touch-icon" sizes="167x167" />
 
     <meta name="mobile-web-app-capable" content="yes">
+    -->
 </head>
 <body>
-    <button id="scanButton" class="normalButton" onclick="onScanButtonClick()">Scan BLE Devices</button>
-    <button id="disconnectButton" class="normalButton" onclick="onDisconnectButtonClick()">Disconnect</button>
-    <button id="reconnectButton" class="normalButton" onclick="onReconnectButtonClick()">Reconnect</button>
+    <fieldset style="width:300px;">
+        <legend style="text-align:center;">&nbsp;Bluetooth&nbsp;</legend>
+        <p style="text-align:center;">
+            <input type="text" name="nameprefix" id="namePrefix" size="28" maxlength="50" placeholder="Device Name Prefix" style="text-align:center;">
+            <br><br>
+            <button id="scanButton" class="normalButton" onclick="onScanButtonClick()">Scan</button>
+            <button id="disconnectButton" class="normalButton" onclick="onDisconnectButtonClick()">Disconnect</button>
+            <button id="reconnectButton" class="normalButton" onclick="onReconnectButtonClick()">Reconnect</button> 
+        </p>
+    </fieldset>
+    
+    <p id="bleStateLabel" style="width:330px;text-align:center;font-size: 0.9em;"></p>
+    <br><br>
+    
+    <fieldset style="width:300px;">
+            <legend style="text-align:center;">&nbsp;Music Player&nbsp;</legend>
+            <p style="text-align:center;">Stop&nbsp;&nbsp;&nbsp;
+                <button id="playButton" class="normalButton" onclick="onPlayButtonClick()" disabled>Play</button> 
+                <button id="stopButton" class="normalButton" onclick="onStopButtonClick()" disabled>Stop</button>
+                <button id="prevButton" class="normalButton" onclick="onPrevButtonClick()" disabled>Prev</button>
+                <button id="nextButton" class="normalButton" onclick="onNextButtonClick()" disabled>Next</button>
+            </p>
+            <p style="text-align:center;">Volume : 5&nbsp;&nbsp;
+                <button id="volumeUpButton" class="normalButton" onclick="onVolumeUpButtonClick()" style="width:35px;" disabled>+</button>
+                <button id="volumeDownButton" class="normalButton" onclick="onVolumeDownButtonClick()" style="width:35px;" disabled>-</button>
+            </p>
+    </fieldset>
+
+    <p id="setupStateLabel" style="width:330px;text-align:center;font-size: 0.9em;"></p>
+    <br>
 </body>
 <script type="text/javascript" src="app.js"></script>
 </html>

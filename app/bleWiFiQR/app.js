@@ -92,6 +92,7 @@ function connect() {
     })
     .catch(error => {
         console.log('Argh! ' + error);
+        bleMsgLabel.innerText = 'Error: ' + error;
     });
 }
   
