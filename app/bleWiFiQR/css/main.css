@@ -4,5 +4,5 @@
 }
 
 @media (orientation: portrait) {
-    #bgDiv { margin-left:auto; margin-right:auto;}
+    #bgDiv { margin-top:35px; margin-left:auto; margin-right:auto;}
 }
