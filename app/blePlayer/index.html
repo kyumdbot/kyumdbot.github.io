@@ -32,31 +32,34 @@
         <p style="text-align:center;">
             <input type="text" name="nameprefix" id="namePrefix" size="28" maxlength="50" placeholder="Device Name Prefix" style="text-align:center;">
             <br><br>
-            <button id="scanButton" class="normalButton" onclick="onScanButtonClick()">Scan</button>
-            <button id="disconnectButton" class="normalButton" onclick="onDisconnectButtonClick()">Disconnect</button>
-            <button id="reconnectButton" class="normalButton" onclick="onReconnectButtonClick()">Reconnect</button> 
+            <button id="scanButton" class="normalButton2" onclick="onScanButtonClick()">Scan</button>
+            <button id="disconnectButton" class="normalButton2" onclick="onDisconnectButtonClick()">Disconnect</button>
+            <button id="reconnectButton" class="normalButton2" onclick="onReconnectButtonClick()">Reconnect</button>            
         </p>
     </fieldset>
     
-    <p id="bleStateLabel" style="width:330px;text-align:center;font-size: 0.9em;"></p>
-    <br><br>
+    <p id="bleStateLabel" style="width:330px;text-align:center;font-size:0.9em;"></p>
+    <br>
     
     <fieldset style="width:300px;">
-            <legend style="text-align:center;">&nbsp;Music Player&nbsp;</legend>
-            <p style="text-align:center;">Stop&nbsp;&nbsp;&nbsp;
+            <legend style="text-align:center;">&nbsp;MP3 Player&nbsp;</legend>
+            <p id="playStateLabel" style="text-align:center;font-weight:bold;font-style:italic;font-size:1.2em;">Stop</p>
+            <p style="text-align:center;">
                 <button id="playButton" class="normalButton" onclick="onPlayButtonClick()" disabled>Play</button> 
                 <button id="stopButton" class="normalButton" onclick="onStopButtonClick()" disabled>Stop</button>
                 <button id="prevButton" class="normalButton" onclick="onPrevButtonClick()" disabled>Prev</button>
                 <button id="nextButton" class="normalButton" onclick="onNextButtonClick()" disabled>Next</button>
             </p>
-            <p style="text-align:center;">Volume : 5&nbsp;&nbsp;
-                <button id="volumeUpButton" class="normalButton" onclick="onVolumeUpButtonClick()" style="width:35px;" disabled>+</button>
-                <button id="volumeDownButton" class="normalButton" onclick="onVolumeDownButtonClick()" style="width:35px;" disabled>-</button>
+            <input type="checkbox" id="loopCheckbox" onchange="toggleCheckbox(this)" style="margin-left:32px;" disabled>Loop One
+            <hr>
+            <p id="volumeLabel" style="text-align:center;font-weight:bold;font-size:1.2em;">Volume : </p>
+            <p style="text-align:center;">
+                <button id="volumeUpButton" class="normalButton" onclick="onVolumeUpButtonClick()" style="width:40px;" disabled>+</button>
+                <button id="volumeDownButton" class="normalButton" onclick="onVolumeDownButtonClick()" style="width:40px;" disabled>-</button>
             </p>
     </fieldset>
 
     <p id="setupStateLabel" style="width:330px;text-align:center;font-size: 0.9em;"></p>
-    <br>
     </div>
 </body>
 <script type="text/javascript" src="app.js"></script>

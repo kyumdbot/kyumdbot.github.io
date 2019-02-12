@@ -5,6 +5,18 @@
     border-radius: 5px;
     color: white;
     font-family: 'Roboto', sans-serif;
+    font-size: 1.0em;
+    margin: 0 0 1em 0;
+    padding: 0.5em 0.7em 0.6em 0.7em;
+}
+
+
+.normalButton2 {
+    background-color: #005ab5;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-family: 'Roboto', sans-serif;
     font-size: 0.9em;
     margin: 0 0 1em 0;
     padding: 0.5em 0.7em 0.6em 0.7em;

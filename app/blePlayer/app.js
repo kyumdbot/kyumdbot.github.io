@@ -7,10 +7,17 @@ document.getElementById("namePrefix").value = defaultNamePrefix;
 
 disabledControlButtons(true);
 
-var bluetoothDevice;
-var bleMsgLabel = document.getElementById("bleStateLabel");
-var setupMsgLabel = document.getElementById("setupStateLabel");
 
+var bleMsgLabel    = document.getElementById("bleStateLabel");
+var setupMsgLabel  = document.getElementById("setupStateLabel");
+var playStateLabel = document.getElementById("playStateLabel");
+var volumeLabel    = document.getElementById("volumeLabel");
+var playButton     = document.getElementById("playButton");
+
+var currentState  = 0;
+var currentVolume = 0;
+
+var bluetoothDevice;
 var serviceUuid     =  "0000aa00-0000-1000-8000-00805f9b34fb";
 var actionCharUuid  =  "0000aa01-0000-1000-8000-00805f9b34fb";
 var volumeCharUuid  =  "0000aa02-0000-1000-8000-00805f9b34fb";
@@ -77,6 +84,26 @@ function connect() {
             }
         });
         disabledControlButtons(false);
+
+        // Read action value:
+        actionCharacteristic.readValue().then(function(value) {
+            currentState = value.getUint8(0);
+            console.log( 'action value: ' + currentState);
+            setPlayStateＥlement(currentState);
+        });
+        // Read volume value:
+        volumeCharacteristic.readValue().then(function(value) {
+            currentVolume = value.getUint8(0);
+            console.log( 'volume value: ' + currentVolume);
+            setVolumeLabel(currentVolume);
+        });
+        // Read loop value:
+        loopCharacteristic.readValue().then(function(value) {
+            let loop = value.getUint8(0);
+            console.log( 'loop value: ' + loop);
+            let isChecked = ((loop === 0) ? false : true);
+            setLoopCheckbox(isChecked);
+        });
     })
     .catch(error => {
         console.log('Argh! ' + error);
@@ -126,28 +153,94 @@ function onReconnectButtonClick() {
 }
 
 function onPlayButtonClick() {
-
+    if (currentState === 0) {
+        currentState = 1;
+    } else if (currentState === 1) {
+        currentState = 2;
+    } else if (currentState === 2) {
+        currentState = 1;
+    } else {
+        return;
+    }
+    writeActionCharacteristic();
 }
 
 function onStopButtonClick() {
-
+    currentState = 0;
+    writeActionCharacteristic();
 }
 
 function onPrevButtonClick() {
-
+    writeNextCharacteristic(1);
 }
 
 function onNextButtonClick() {
-
+    writeNextCharacteristic(2);
 }
 
 function onVolumeUpButtonClick() {
-
+    currentVolume = currentVolume + 3;
+    if (currentVolume > 30) {
+        currentVolume = 30;
+    }
+    writeVolumeCharacteristic();
 }
 
 function onVolumeDownButtonClick() {
-    
+    currentVolume = currentVolume - 3;
+    if (currentVolume < 0) {
+        currentVolume = 0;
+    }
+    writeVolumeCharacteristic();
 }
+
+
+function writeActionCharacteristic() {
+    let aValue = Uint8Array.of(currentState);
+    actionCharacteristic.writeValue(aValue)
+    .then(_ => {
+        console.log('> Write value to actionCharacteristic is ok!');
+        setPlayStateＥlement(currentState);
+    })
+    .catch(error => {
+        console.log('Argh! ' + error);
+    });
+}
+
+function writeVolumeCharacteristic() {
+    let aValue = Uint8Array.of(currentVolume);
+    volumeCharacteristic.writeValue(aValue)
+    .then(_ => {
+        console.log('> Write value to volumeCharacteristic is ok!');
+        setVolumeLabel(currentVolume);
+    })
+    .catch(error => {
+        console.log('Argh! ' + error);
+    });
+}
+
+function writeNextCharacteristic(prevOrNext) {
+    let aValue = Uint8Array.of(prevOrNext);
+    nextCharacteristic.writeValue(aValue)
+    .then(_ => {
+        console.log('> Write value to nextCharacteristic is ok!');
+    })
+    .catch(error => {
+        console.log('Argh! ' + error);
+    });
+}
+
+function writeLoopCharacteristic(loop) {
+    let aValue = Uint8Array.of(loop);
+    loopCharacteristic.writeValue(aValue)
+    .then(_ => {
+        console.log('> Write value to loopCharacteristic is ok!');
+    })
+    .catch(error => {
+        console.log('Argh! ' + error);
+    });
+}
+
 
 function disabledControlButtons(isDisabled) {
     document.getElementById("playButton").disabled = isDisabled;
@@ -156,6 +249,7 @@ function disabledControlButtons(isDisabled) {
     document.getElementById("nextButton").disabled = isDisabled;
     document.getElementById("volumeUpButton").disabled = isDisabled;
     document.getElementById("volumeDownButton").disabled = isDisabled;
+    document.getElementById("loopCheckbox").disabled = isDisabled;
 
     if (isDisabled) {
         let color = '#8e8e8e';
@@ -173,5 +267,35 @@ function disabledControlButtons(isDisabled) {
         document.getElementById("nextButton").style.background = color;
         document.getElementById("volumeUpButton").style.background = color;
         document.getElementById("volumeDownButton").style.background = color;
+    }
+}
+
+function setPlayStateＥlement(stateValue) {
+    if (stateValue === 0) {
+        playStateLabel.innerText = 'Stop';
+        playButton.innerText = 'Play';
+    } else if (stateValue === 1) {
+        playStateLabel.innerText = 'Playing...';
+        playButton.innerText = 'Pause';
+    } else if (stateValue === 2) {
+        playStateLabel.innerText = 'Pausing...';
+        playButton.innerText = 'Play';
+    }
+}
+
+function setVolumeLabel(volumeValue) {
+    volumeLabel.innerText = 'Volume : ' + (volumeValue / 3);
+}
+
+function setLoopCheckbox(isChecked) {
+    document.getElementById("loopCheckbox").checked = isChecked;
+}
+
+function toggleCheckbox(element) {
+    //console.log(element.checked)
+    if (element.checked === false) {
+        writeLoopCharacteristic(0);
+    } else {
+        writeLoopCharacteristic(1);
     }
 }
