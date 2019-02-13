@@ -5,7 +5,9 @@
 var defaultNamePrefix = "RLHome_MP3_Player";
 document.getElementById("namePrefix").value = defaultNamePrefix;
 
-disabledControlButtons(true);
+disabledActionControlButtons(true);
+disabledVolumeControlButtons(true);
+disabledLoopCheckbox(true);
 
 
 var bleMsgLabel    = document.getElementById("bleStateLabel");
@@ -73,6 +75,8 @@ function connect() {
                 currentState = value.getUint8(0);
                 console.log( 'action value: ' + currentState);
                 setPlayStateＥlement(currentState);
+
+                disabledActionControlButtons(false);
             });
         });
 
@@ -84,6 +88,8 @@ function connect() {
                 currentVolume = value.getUint8(0);
                 console.log( 'volume value: ' + currentVolume);
                 setVolumeLabel(currentVolume);
+
+                disabledVolumeControlButtons(false);
             });
         });
 
@@ -101,13 +107,10 @@ function connect() {
                 console.log( 'loop value: ' + loop);
                 let isChecked = ((loop === 0) ? false : true);
                 setLoopCheckbox(isChecked);
+
+                disabledLoopCheckbox(false);
             });
         });
-
-        setTimeout(function() {
-            console.log('Control buttons enable!');
-            disabledControlButtons(false);
-        }, 700);
     })
     .catch(error => {
         console.log('Argh! ' + error);
@@ -133,7 +136,9 @@ function onDisconnected(event) {
     // Object event.target is Bluetooth Device getting disconnected.
     console.log('> Bluetooth Device disconnected');
     bleMsgLabel.innerText = "Bluetooth Device is disconnected";
-    disabledControlButtons(true) 
+    disabledActionControlButtons(true);
+    disabledVolumeControlButtons(true);
+    disabledLoopCheckbox(true);
 }
 
 function onReconnectButtonClick() {
@@ -246,14 +251,11 @@ function writeLoopCharacteristic(loop) {
 }
 
 
-function disabledControlButtons(isDisabled) {
+function disabledActionControlButtons(isDisabled) {
     document.getElementById("playButton").disabled = isDisabled;
     document.getElementById("stopButton").disabled = isDisabled;
     document.getElementById("prevButton").disabled = isDisabled;
     document.getElementById("nextButton").disabled = isDisabled;
-    document.getElementById("volumeUpButton").disabled = isDisabled;
-    document.getElementById("volumeDownButton").disabled = isDisabled;
-    document.getElementById("loopCheckbox").disabled = isDisabled;
 
     if (isDisabled) {
         let color = '#8e8e8e';
@@ -261,17 +263,32 @@ function disabledControlButtons(isDisabled) {
         document.getElementById("stopButton").style.background = color;
         document.getElementById("prevButton").style.background = color;
         document.getElementById("nextButton").style.background = color;
-        document.getElementById("volumeUpButton").style.background = color;
-        document.getElementById("volumeDownButton").style.background = color;
     } else {
         let color = '#d84a38';
         document.getElementById("playButton").style.background = color;
         document.getElementById("stopButton").style.background = color;
         document.getElementById("prevButton").style.background = color;
         document.getElementById("nextButton").style.background = color;
+    }
+}
+
+function disabledVolumeControlButtons(isDisabled) {
+    document.getElementById("volumeUpButton").disabled = isDisabled;
+    document.getElementById("volumeDownButton").disabled = isDisabled;
+
+    if (isDisabled) {
+        let color = '#8e8e8e';
+        document.getElementById("volumeUpButton").style.background = color;
+        document.getElementById("volumeDownButton").style.background = color;
+    } else {
+        let color = '#d84a38';
         document.getElementById("volumeUpButton").style.background = color;
         document.getElementById("volumeDownButton").style.background = color;
     }
+}
+
+function disabledLoopCheckbox(isDisabled) {
+    document.getElementById("loopCheckbox").disabled = isDisabled;
 }
 
 function setPlayStateＥlement(stateValue) {
