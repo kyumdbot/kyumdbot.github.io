@@ -104,7 +104,10 @@ function connect() {
             });
         });
 
-        disabledControlButtons(false);
+        setTimeout(function() {
+            console.log('Control buttons enable!');
+            disabledControlButtons(false);
+        }, 700);
     })
     .catch(error => {
         console.log('Argh! ' + error);
