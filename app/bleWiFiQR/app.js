@@ -13,7 +13,6 @@ if (!storeNamePrefix || storeNamePrefix === "") {
 }
 
 
-
 var bluetoothDevice;
 var bleMsgLabel = document.getElementById("bleStateLabel");
 var setupMsgLabel = document.getElementById("setupStateLabel");
@@ -28,7 +27,6 @@ var typeCharacteristic;
 var ssidCharacteristic;
 var passCharacteristic;
 var actionCharacteristic;
-
 
 
 
@@ -135,7 +133,9 @@ function onDisconnectButtonClick() {
         bluetoothDevice.gatt.disconnect();
     } else {
         console.log('> Bluetooth Device is already disconnected');
-        bleMsgLabel.innerText = "Bluetooth Device is already disconnected"
+        bleMsgLabel.innerText = "Bluetooth Device is already disconnected";
+        document.getElementById("setupButton").disabled = true;
+        document.getElementById("setupButton").style.background='#9d9d9d';
     }
 }
 
@@ -166,7 +166,6 @@ function onReconnectButtonClick() {
         bleMsgLabel.innerText = "Connection failed!";
     });
 }
-
 
 function onWriteButtonClick() {
     setupMsgLabel.innerText = '';
