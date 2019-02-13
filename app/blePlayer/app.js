@@ -5,9 +5,7 @@
 var defaultNamePrefix = "RLHome_MP3_Player";
 document.getElementById("namePrefix").value = defaultNamePrefix;
 
-disabledActionControlButtons(true);
-disabledVolumeControlButtons(true);
-disabledLoopCheckbox(true);
+disabledControlButtons(true);
 
 
 var bleMsgLabel    = document.getElementById("bleStateLabel");
@@ -32,90 +30,80 @@ var nextCharacteristic;
 var loopCharacteristic;
 
 
-function onScanButtonClick() {
+async function onScanButtonClick() {
     let namePrefix = document.getElementById("namePrefix").value;
 
     if (namePrefix !== "") {
         let options = {filters: [], "optionalServices": [serviceUuid]};
         options.filters.push({namePrefix: namePrefix});
 
-        bluetoothDevice = null;
-        console.log('Requesting Bluetooth Device...');
-        navigator.bluetooth.requestDevice(options)
-        .then(device => {
-            bluetoothDevice = device;
+        // bluetoothDevice = null;
+        // console.log('Requesting Bluetooth Device...');
+        // navigator.bluetooth.requestDevice(options)
+        // .then(device => {
+        //     bluetoothDevice = device;
+        //     bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        //     return connect();
+        // })
+        // .catch(error => {
+        //     console.log('Argh! ' + error);
+        //     bleMsgLabel.innerText = "Request device failed!";
+        // });
+
+        try {
+            console.log('Requesting Bluetooth Device...');
+            bluetoothDevice = await navigator.bluetooth.requestDevice(options);
             bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-            return connect();
-        })
-        .catch(error => {
+            connect();
+
+        } catch(error) {
             console.log('Argh! ' + error);
-            bleMsgLabel.innerText = "Request device failed!";
-        });
+            bleMsgLabel.innerText = 'Error: ' + error;
+        }
     } else {
         bleMsgLabel.innerText = "Please enter a device name prefix!";
     }
 }
 
-function connect() {
+async function connect() {
     console.log('Connecting to Bluetooth Device...');
-    return bluetoothDevice.gatt.connect()
-    .then(server => {
-        console.log('> Bluetooth Device connected');
-        bleMsgLabel.innerText = "Connected to " + bluetoothDevice.name;
-        return server.getPrimaryService(serviceUuid);
-    })
-    .then(service => {
-        console.log('Getting Characteristics...');
+    console.log('Connecting to GATT Server...');
+    const server = await bluetoothDevice.gatt.connect();
 
-        // get action Characteristic
-        service.getCharacteristic(actionCharUuid).then(function(ch) {
-            actionCharacteristic = ch;
-            // Read action value:
-            actionCharacteristic.readValue().then(function(value) {
-                currentState = value.getUint8(0);
-                console.log( 'action value: ' + currentState);
-                setPlayStateＥlement(currentState);
+    console.log('> Bluetooth Device connected');
+    bleMsgLabel.innerText = "Connected to " + bluetoothDevice.name;
 
-                disabledActionControlButtons(false);
-            });
-        });
+    console.log('Getting Service...');
+    const service = await server.getPrimaryService(serviceUuid);
 
-        // get volume Characteristic
-        service.getCharacteristic(volumeCharUuid).then(function(ch) {
-            volumeCharacteristic = ch;
-            // Read volume value:
-            volumeCharacteristic.readValue().then(function(value) {
-                currentVolume = value.getUint8(0);
-                console.log( 'volume value: ' + currentVolume);
-                setVolumeLabel(currentVolume);
+    console.log('Getting Characteristics...');
+    actionCharacteristic = await service.getCharacteristic(actionCharUuid);
+    volumeCharacteristic = await service.getCharacteristic(volumeCharUuid);
+    nextCharacteristic   = await service.getCharacteristic(nextCharUuid);
+    loopCharacteristic   = await service.getCharacteristic(loopCharUuid);
 
-                disabledVolumeControlButtons(false);
-            });
-        });
+    // Read action value
+    const actionValue = await actionCharacteristic.readValue();
+    currentState = actionValue.getUint8(0);
+    console.log( 'action value: ' + currentState);
+    setPlayStateＥlement(currentState);
+    
+    // Read volume
+    const volumeValue = await volumeCharacteristic.readValue();
+    currentVolume = volumeValue.getUint8(0);
+    console.log( 'volume value: ' + currentVolume);
+    setVolumeLabel(currentVolume);
+    
+    // Read loop value
+    const loopValue = await loopCharacteristic.readValue();
+    const loop = loopValue.getUint8(0);
+    console.log( 'loop value: ' + loop);
 
-        // get next Characteristic
-        service.getCharacteristic(nextCharUuid).then(function(ch) {
-            nextCharacteristic = ch;
-        });
+    const isChecked = ((loop === 0) ? false : true);
+    setLoopCheckbox(isChecked);
 
-        // get loop Characteristic
-        service.getCharacteristic(loopCharUuid).then(function(ch) {
-            loopCharacteristic = ch;
-            // Read loop value:
-            loopCharacteristic.readValue().then(function(value) {
-                let loop = value.getUint8(0);
-                console.log( 'loop value: ' + loop);
-                let isChecked = ((loop === 0) ? false : true);
-                setLoopCheckbox(isChecked);
-
-                disabledLoopCheckbox(false);
-            });
-        });
-    })
-    .catch(error => {
-        console.log('Argh! ' + error);
-        bleMsgLabel.innerText = 'Error: ' + error;
-    });
+    // Enable control buttons
+    disabledControlButtons(false);
 }
   
 function onDisconnectButtonClick() {
@@ -129,6 +117,7 @@ function onDisconnectButtonClick() {
     } else {
         console.log('> Bluetooth Device is already disconnected');
         bleMsgLabel.innerText = "Bluetooth Device is already disconnected"
+        disabledControlButtons(true);
     }
 }
 
@@ -136,9 +125,7 @@ function onDisconnected(event) {
     // Object event.target is Bluetooth Device getting disconnected.
     console.log('> Bluetooth Device disconnected');
     bleMsgLabel.innerText = "Bluetooth Device is disconnected";
-    disabledActionControlButtons(true);
-    disabledVolumeControlButtons(true);
-    disabledLoopCheckbox(true);
+    disabledControlButtons(true);
 }
 
 function onReconnectButtonClick() {
@@ -152,13 +139,15 @@ function onReconnectButtonClick() {
     if (bluetoothDevice.gatt.connected) {
         console.log('> Bluetooth Device is already connected');
         bleMsgLabel.innerText = "Connected to " + bluetoothDevice.name;
-      return;
+        return;
     }
-    connect()
-    .catch(error => {
+
+    try {
+        connect();
+    } catch(error) {
         console.log('Argh! ' + error);
         bleMsgLabel.innerText = "Connection failed!";
-    });
+    }
 }
 
 function onPlayButtonClick() {
@@ -204,91 +193,72 @@ function onVolumeDownButtonClick() {
 }
 
 
-function writeActionCharacteristic() {
+async function writeActionCharacteristic() {
     let aValue = Uint8Array.of(currentState);
-    actionCharacteristic.writeValue(aValue)
-    .then(_ => {
+    try {
+        await actionCharacteristic.writeValue(aValue)
         console.log('> Write value to actionCharacteristic is ok!');
         setPlayStateＥlement(currentState);
-    })
-    .catch(error => {
+    } catch(error) {
         console.log('Argh! ' + error);
-    });
+    }
 }
 
-function writeVolumeCharacteristic() {
+async function writeVolumeCharacteristic() {
     let aValue = Uint8Array.of(currentVolume);
-    volumeCharacteristic.writeValue(aValue)
-    .then(_ => {
+    try {
+        await volumeCharacteristic.writeValue(aValue)
         console.log('> Write value to volumeCharacteristic is ok!');
         setVolumeLabel(currentVolume);
-    })
-    .catch(error => {
+    } catch(error) {
         console.log('Argh! ' + error);
-    });
+    }
 }
 
-function writeNextCharacteristic(prevOrNext) {
+async function writeNextCharacteristic(prevOrNext) {
     let aValue = Uint8Array.of(prevOrNext);
-    nextCharacteristic.writeValue(aValue)
-    .then(_ => {
+    try {
+        await nextCharacteristic.writeValue(aValue);
         console.log('> Write value to nextCharacteristic is ok!');
-    })
-    .catch(error => {
+    } catch(error) {
         console.log('Argh! ' + error);
-    });
+    }
 }
 
-function writeLoopCharacteristic(loop) {
+async function writeLoopCharacteristic(loop) {
     let aValue = Uint8Array.of(loop);
-    loopCharacteristic.writeValue(aValue)
-    .then(_ => {
+    try {
+        await loopCharacteristic.writeValue(aValue);
         console.log('> Write value to loopCharacteristic is ok!');
-    })
-    .catch(error => {
+    } catch(error) {
         console.log('Argh! ' + error);
-    });
+    }
 }
 
 
-function disabledActionControlButtons(isDisabled) {
+function disabledControlButtons(isDisabled) {
     document.getElementById("playButton").disabled = isDisabled;
     document.getElementById("stopButton").disabled = isDisabled;
     document.getElementById("prevButton").disabled = isDisabled;
     document.getElementById("nextButton").disabled = isDisabled;
-
-    if (isDisabled) {
-        let color = '#8e8e8e';
-        document.getElementById("playButton").style.background = color;
-        document.getElementById("stopButton").style.background = color;
-        document.getElementById("prevButton").style.background = color;
-        document.getElementById("nextButton").style.background = color;
-    } else {
-        let color = '#d84a38';
-        document.getElementById("playButton").style.background = color;
-        document.getElementById("stopButton").style.background = color;
-        document.getElementById("prevButton").style.background = color;
-        document.getElementById("nextButton").style.background = color;
-    }
-}
-
-function disabledVolumeControlButtons(isDisabled) {
     document.getElementById("volumeUpButton").disabled = isDisabled;
     document.getElementById("volumeDownButton").disabled = isDisabled;
+    document.getElementById("loopCheckbox").disabled = isDisabled;
+
+    let color;
 
     if (isDisabled) {
-        let color = '#8e8e8e';
-        document.getElementById("volumeUpButton").style.background = color;
-        document.getElementById("volumeDownButton").style.background = color;
+        color = '#8e8e8e';
     } else {
-        let color = '#d84a38';
-        document.getElementById("volumeUpButton").style.background = color;
-        document.getElementById("volumeDownButton").style.background = color;
+        color = '#d84a38';
     }
-}
 
-function disabledLoopCheckbox(isDisabled) {
-    document.getElementById("loopCheckbox").disabled = isDisabled;
+    document.getElementById("playButton").style.background = color;
+    document.getElementById("stopButton").style.background = color;
+    document.getElementById("prevButton").style.background = color;
+    document.getElementById("nextButton").style.background = color;
+    document.getElementById("volumeUpButton").style.background = color;
+    document.getElementById("volumeDownButton").style.background = color;
 }
 
 function setPlayStateＥlement(stateValue) {
