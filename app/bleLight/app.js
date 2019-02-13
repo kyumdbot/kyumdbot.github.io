@@ -58,33 +58,33 @@ function connect() {
     })
     .then(service => {
         console.log('Getting Characteristics...');
-        // Get all characteristics.
-        return service.getCharacteristics();
-    })
-    .then(characteristics => {
-        characteristics.forEach(function(ch) {
-            console.log(ch.uuid);
-            if (ch.uuid === switchCharUuid) {
-                switchCharacteristic = ch;
-            }
-            else if (ch.uuid === redCharUuid ) {
-                redCharacteristic = ch;
-            }
-            else if (ch.uuid === greenCharUuid) {
-                greenCharacteristic = ch;
-            }
-            else if (ch.uuid === blueCharUuid) {
-                blueCharacteristic = ch;
-            }
+
+        // get switch Characteristic
+        service.getCharacteristic(switchCharUuid).then(function(ch) {
+            switchCharacteristic = ch;
+            // read switch value
+            switchCharacteristic.readValue().then(function(value) {
+                let decoder = new TextDecoder('utf-8');
+                switchValue = decoder.decode(value);
+                console.log('> Switch value: ' + switchValue);
+                disabledControlButtons(false);
+            });
         });
-        
-        return switchCharacteristic.readValue();
-    })
-    .then(value => {
-        let decoder = new TextDecoder('utf-8');
-        switchValue = decoder.decode(value);
-        console.log('> Switch value: ' + switchValue);
-        disabledControlButtons(false);
+
+        // get red Characteristic
+        service.getCharacteristic(redCharUuid).then(function(ch) {
+            redCharacteristic = ch;
+        });
+
+        // get green Characteristic
+        service.getCharacteristic(greenCharUuid).then(function(ch) {
+            greenCharacteristic = ch;
+        });
+
+        // get blue Characteristic
+        service.getCharacteristic(blueCharUuid).then(function(ch) {
+            blueCharacteristic = ch;
+        });
     })
     .catch(error => {
         console.log('Argh! ' + error);
