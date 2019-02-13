@@ -64,8 +64,6 @@ function connect() {
     })
     .then(service => {
         console.log('Getting Characteristics...');
-        // Get all characteristics.
-        // return service.getCharacteristics();
 
         // get action Characteristic
         service.getCharacteristic(actionCharUuid).then(function(ch) {
@@ -77,7 +75,7 @@ function connect() {
                 setPlayStateＥlement(currentState);
             });
         });
-        
+
         // get volume Characteristic
         service.getCharacteristic(volumeCharUuid).then(function(ch) {
             volumeCharacteristic = ch;
@@ -107,46 +105,7 @@ function connect() {
         });
 
         disabledControlButtons(false);
-
     })
-    // .then(characteristics => {
-    //     characteristics.forEach(function(ch) {
-    //         console.log(ch.uuid);
-    //         if (ch.uuid === actionCharUuid) {
-    //             actionCharacteristic = ch;
-    //         }
-    //         else if (ch.uuid === volumeCharUuid ) {
-    //             volumeCharacteristic = ch;
-    //         }
-    //         else if (ch.uuid === nextCharUuid) {
-    //             nextCharacteristic = ch;
-    //         }
-    //         else if (ch.uuid === loopCharUuid) {
-    //             loopCharacteristic = ch;
-    //         }
-    //     });
-    //     disabledControlButtons(false);
-
-    //     // Read action value:
-    //     actionCharacteristic.readValue().then(function(value) {
-    //         currentState = value.getUint8(0);
-    //         console.log( 'action value: ' + currentState);
-    //         setPlayStateＥlement(currentState);
-    //     });
-    //     // Read volume value:
-    //     volumeCharacteristic.readValue().then(function(value) {
-    //         currentVolume = value.getUint8(0);
-    //         console.log( 'volume value: ' + currentVolume);
-    //         setVolumeLabel(currentVolume);
-    //     });
-    //     // Read loop value:
-    //     loopCharacteristic.readValue().then(function(value) {
-    //         let loop = value.getUint8(0);
-    //         console.log( 'loop value: ' + loop);
-    //         let isChecked = ((loop === 0) ? false : true);
-    //         setLoopCheckbox(isChecked);
-    //     });
-    // })
     .catch(error => {
         console.log('Argh! ' + error);
         bleMsgLabel.innerText = 'Error: ' + error;
