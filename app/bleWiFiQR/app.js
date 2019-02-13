@@ -69,27 +69,55 @@ function connect() {
     .then(service => {
         console.log('Getting Characteristics...');
         // Get all characteristics.
-        return service.getCharacteristics();
-    })
-    .then(characteristics => {
-        characteristics.forEach(function(ch) {
-            console.log(ch.uuid);
-            if (ch.uuid === typeCharUuid) {
-                typeCharacteristic = ch;
-            }
-            else if (ch.uuid === ssidCharUuid ) {
-                ssidCharacteristic = ch;
-            }
-            else if (ch.uuid === passCharUuid) {
-                passCharacteristic = ch;
-            }
-            else if (ch.uuid === actionCharUuid) {
-                actionCharacteristic = ch;
-            }
+        // return service.getCharacteristics();
+
+        // get type Characteristic (1)
+        service.getCharacteristic(typeCharUuid).then(function(typech) {
+            console.log(typech.uuid);
+            typeCharacteristic = typech;
+
+            // get ssid Characteristic (2)
+            service.getCharacteristic(ssidCharUuid).then(function(ssidch) {
+                console.log(ssidch.uuid);
+                ssidCharacteristic = ssidch;
+
+                // get pass Characteristic (3)
+                service.getCharacteristic(passCharUuid).then(function(passch) {
+                    console.log(passch.uuid);
+                    passCharacteristic = passch;
+
+                    // get action Characteristic (4)
+                    service.getCharacteristic(actionCharUuid).then(function(actionch) {
+                        console.log(actionch.uuid);
+                        actionCharacteristic = actionch;
+
+                        document.getElementById("setupButton").disabled = false;
+                        document.getElementById("setupButton").style.background='#019858';
+                        console.log('setupButton enable!');
+                    });
+                });
+            });
         });
-        document.getElementById("setupButton").disabled = false;
-        document.getElementById("setupButton").style.background='#019858';
     })
+    // .then(characteristics => {
+    //     characteristics.forEach(function(ch) {
+    //         console.log(ch.uuid);
+    //         if (ch.uuid === typeCharUuid) {
+    //             typeCharacteristic = ch;
+    //         }
+    //         else if (ch.uuid === ssidCharUuid ) {
+    //             ssidCharacteristic = ch;
+    //         }
+    //         else if (ch.uuid === passCharUuid) {
+    //             passCharacteristic = ch;
+    //         }
+    //         else if (ch.uuid === actionCharUuid) {
+    //             actionCharacteristic = ch;
+    //         }
+    //     });
+    //     document.getElementById("setupButton").disabled = false;
+    //     document.getElementById("setupButton").style.background='#019858';
+    // })
     .catch(error => {
         console.log('Argh! ' + error);
         bleMsgLabel.innerText = 'Error: ' + error;
