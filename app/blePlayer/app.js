@@ -37,19 +37,6 @@ async function onScanButtonClick() {
         let options = {filters: [], "optionalServices": [serviceUuid]};
         options.filters.push({namePrefix: namePrefix});
 
-        // bluetoothDevice = null;
-        // console.log('Requesting Bluetooth Device...');
-        // navigator.bluetooth.requestDevice(options)
-        // .then(device => {
-        //     bluetoothDevice = device;
-        //     bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-        //     return connect();
-        // })
-        // .catch(error => {
-        //     console.log('Argh! ' + error);
-        //     bleMsgLabel.innerText = "Request device failed!";
-        // });
-
         try {
             console.log('Requesting Bluetooth Device...');
             bluetoothDevice = await navigator.bluetooth.requestDevice(options);
@@ -196,7 +183,7 @@ function onVolumeDownButtonClick() {
 async function writeActionCharacteristic() {
     let aValue = Uint8Array.of(currentState);
     try {
-        await actionCharacteristic.writeValue(aValue)
+        await actionCharacteristic.writeValue(aValue);
         console.log('> Write value to actionCharacteristic is ok!');
         setPlayStateＥlement(currentState);
     } catch(error) {
