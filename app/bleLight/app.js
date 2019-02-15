@@ -24,72 +24,51 @@ var blueCharacteristic;
 
 var switchValue = "0";
 
-function onScanButtonClick() {
+async function onScanButtonClick() {
     let namePrefix = document.getElementById("namePrefix").value;
 
     if (namePrefix !== "") {
         let options = {filters: [], "optionalServices": [serviceUuid]};
         options.filters.push({namePrefix: namePrefix});
 
-        bluetoothDevice = null;
-        console.log('Requesting Bluetooth Device...');
-        navigator.bluetooth.requestDevice(options)
-        .then(device => {
-            bluetoothDevice = device;
+        try {
+            console.log('Requesting Bluetooth Device...');
+            bluetoothDevice = await navigator.bluetooth.requestDevice(options);
             bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-            return connect();
-        })
-        .catch(error => {
+            connect();
+
+        } catch(error) {
             console.log('Argh! ' + error);
-            bleMsgLabel.innerText = "Request device failed!";
-        });
+            bleMsgLabel.innerText = 'Error: ' + error;
+        }
     } else {
         bleMsgLabel.innerText = "Please enter a device name prefix!";
     }
 }
 
-function connect() {
+async function connect() {
     console.log('Connecting to Bluetooth Device...');
-    return bluetoothDevice.gatt.connect()
-    .then(server => {
-        console.log('> Bluetooth Device connected');
-        bleMsgLabel.innerText = "Connected to " + bluetoothDevice.name;
-        return server.getPrimaryService(serviceUuid);
-    })
-    .then(service => {
-        console.log('Getting Characteristics...');
+    console.log('Connecting to GATT Server...');
+    const server = await bluetoothDevice.gatt.connect();
 
-        // get switch Characteristic
-        service.getCharacteristic(switchCharUuid).then(function(ch) {
-            switchCharacteristic = ch;
-            // read switch value
-            switchCharacteristic.readValue().then(function(value) {
-                let decoder = new TextDecoder('utf-8');
-                switchValue = decoder.decode(value);
-                console.log('> Switch value: ' + switchValue);
-                disabledControlButtons(false);
-            });
-        });
+    console.log('> Bluetooth Device connected');
+    bleMsgLabel.innerText = "Connected to " + bluetoothDevice.name;
 
-        // get red Characteristic
-        service.getCharacteristic(redCharUuid).then(function(ch) {
-            redCharacteristic = ch;
-        });
+    console.log('Getting Service...');
+    const service = await server.getPrimaryService(serviceUuid);
 
-        // get green Characteristic
-        service.getCharacteristic(greenCharUuid).then(function(ch) {
-            greenCharacteristic = ch;
-        });
+    console.log('Getting Characteristics...');
+    switchCharacteristic = await service.getCharacteristic(switchCharUuid);
+    redCharacteristic    = await service.getCharacteristic(redCharUuid);
+    greenCharacteristic  = await service.getCharacteristic(greenCharUuid);
+    blueCharacteristic   = await service.getCharacteristic(blueCharUuid);
 
-        // get blue Characteristic
-        service.getCharacteristic(blueCharUuid).then(function(ch) {
-            blueCharacteristic = ch;
-        });
-    })
-    .catch(error => {
-        console.log('Argh! ' + error);
-        bleMsgLabel.innerText = 'Error: ' + error;
-    });
+    // Read switch value
+    const aValue = await switchCharacteristic.readValue();
+    let decoder = new TextDecoder('utf-8');
+    switchValue = decoder.decode(aValue);
+    console.log('> Switch value: ' + switchValue);
+    disabledControlButtons(false);
 }
 
 function onDisconnectButtonClick() {
@@ -126,11 +105,13 @@ function onReconnectButtonClick() {
         bleMsgLabel.innerText = "Connected to " + bluetoothDevice.name;
       return;
     }
-    connect()
-    .catch(error => {
+
+    try {
+        connect();
+    } catch(error) {
         console.log('Argh! ' + error);
         bleMsgLabel.innerText = "Connection failed!";
-    });
+    }
 }
 
 function disabledControlButtons(isDisabled) {
@@ -171,48 +152,33 @@ function selectColor(e) {
     }
 }
 
-function onSwitchButtonClick() {
+async function onSwitchButtonClick() {
     if (switchValue === "1") {
         switchValue = "0"
     } else {
         switchValue = "1"
     }
-    changeSwitchButtonColor(false);
-
+    
     let encoder = new TextEncoder('utf-8');
-    switchCharacteristic.writeValue(encoder.encode(switchValue))
-    .then(_ => {
+    try {
+        await switchCharacteristic.writeValue(encoder.encode(switchValue));
         console.log('> Write data to switchCharacteristic is ok.');
-    })
-    .catch(error => {
+        changeSwitchButtonColor(false);
+    } catch(error) {
         console.log('Argh! ' + error);
-    });
+    }
 }
 
-function writeColor(R, G, B) {
+async function writeColor(R, G, B) {
     let encoder = new TextEncoder('utf-8');
-
-    redCharacteristic.writeValue(encoder.encode(R))
-    .then(_ => {
+    try {
+        await redCharacteristic.writeValue(encoder.encode(R));
         console.log('> Write data to redCharacteristic is ok.');
-
-        greenCharacteristic.writeValue(encoder.encode(G))
-        .then(_ => {
-            console.log('> Write data to greenCharacteristic is ok.');
-
-            blueCharacteristic.writeValue(encoder.encode(B))
-            .then(_ => {
-                console.log('> Write data to blueCharacteristic is ok.');
-            })
-            .catch(error => {
-                console.log('Argh! ' + error);
-            });
-        })
-        .catch(error => {
-            console.log('Argh! ' + error);
-        });
-    })
-    .catch(error => {
+        await greenCharacteristic.writeValue(encoder.encode(G));
+        console.log('> Write data to greenCharacteristic is ok.');
+        await blueCharacteristic.writeValue(encoder.encode(B));
+        console.log('> Write data to blueCharacteristic is ok.');
+    } catch(error) {
         console.log('Argh! ' + error);
-    });
+    }
 }
